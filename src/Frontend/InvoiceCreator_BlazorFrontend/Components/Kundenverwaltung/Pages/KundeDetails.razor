@@ -1,0 +1,64 @@
+﻿@using InvoiceCreator_BlazorFrontend.Components.Kundenverwaltung.Services
+@using InvoiceCreator_BlazorFrontend.Components.Kundenverwaltung.Templates
+@using InvoiceCreator_BlazorFrontend.Components.Terminplanung.Templates
+@using Radzen
+@using Shared.Domain.Models
+
+@inject DialogService DialogService
+@inject KundeService Service
+@inject NavigationManager Navigation
+@inherits BasePage
+@rendermode InteractiveServer
+
+@page "/kunde/details/{id}"
+<h3>Kundendetails</h3>
+
+@if (IsBusy)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Lädt...</span>
+    </div>
+}
+
+<Snackbar Message="@Fehlermeldung" />
+
+@if (Kunde is not null)
+{
+    <KundeCard TItem="Kunde"
+        Kunde="Kunde"
+        NavigiereZuFormularClicked="Bearbeiten"
+        NavigiereZuUebersichtClicked="Zurueck"
+        NeuerTerminClicked="NeuenTerminAnlegen">
+
+    </KundeCard>
+}
+else
+{
+    <p>Kunde nicht gefunden.</p>
+}
+
+@code {
+    [Parameter] public string? Id { get; set; }
+    private Kunde? Kunde;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await TryCatchAsync(async () =>
+        {
+            if (!string.IsNullOrWhiteSpace(Id))
+                Kunde = await Service.GetKundeByIdAsync(Id);
+        });
+    }
+
+    private async Task NeuenTerminAnlegen()
+    {
+        await DialogService.OpenSideAsync<TerminDialog>(
+            "Neuen Termin anlegen",
+            new Dictionary<string, object>() { { "Kunde", Kunde } },
+            new SideDialogOptions { CloseDialogOnOverlayClick = true, Position = DialogPosition.Right, Width = "600px" }
+        );
+    }
+
+    private void Zurueck() => Navigation.NavigateTo("/kunden");
+    private void Bearbeiten() => Navigation.NavigateTo($"/kunde/form/{Id}");
+}

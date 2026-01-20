@@ -1,0 +1,194 @@
+﻿@using InvoiceCreator_BlazorFrontend.Components.Leistungskatalog.Services
+@using InvoiceCreator_BlazorFrontend.Components.Terminplanung.Pages
+@using InvoiceCreator_BlazorFrontend.Components.Terminplanung.Services
+@using InvoiceCreator_BlazorFrontend.Components.Userverwaltung.Services
+@using Radzen
+@using Radzen.Blazor
+@using Shared.Domain.Enums
+@using Shared.Domain.Models
+@inherits BasePage
+@inject DialogService DialogService
+@inject TerminService TerminService
+@inject TooltipService TooltipService
+@rendermode InteractiveServer
+
+
+<RadzenScheduler Data="@Termine"
+                 StartProperty="Start"
+                 EndProperty="End"
+                 TextProperty="Text"
+                 @ref=@scheduler 
+                 SlotRender=@OnSlotRender
+                 SlotSelect=@OnSlotSelect 
+                 AppointmentSelect=@OnAppointmentSelect 
+                 AppointmentRender=@OnAppointmentRender
+                 AppointmentMove=@OnAppointmentMove
+                 AppointmentMouseEnter=@OnAppointmentMouseEnter 
+                 AppointmentMouseLeave=@OnAppointmentMouseLeave
+                 TItem="Termin"
+                 Style="height:768px"
+                 ShowHeader=true
+                 SelectedIndex="2">
+    <Template Context="data">
+        <div title="@data.Text">@data.Text</div>
+    </Template>
+    <ChildContent>
+        <RadzenDayView />
+        <RadzenWeekView />
+        <RadzenMonthView />
+    </ChildContent>
+</RadzenScheduler>
+
+<div class="actions">
+    <button class="btn btn-primary" Click="@OnSpeichern">Speichern</button>
+    <button class="btn btn-ghost" Click="@OnAbbrechen">Abbrechen</button>
+</div>
+
+@code {
+    [Parameter] 
+    public Kunde Kunde { get; set; }
+
+    RadzenScheduler<Termin> scheduler;
+    private List<Termin> Termine = new(); 
+
+    private Termin selectedTermin;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LadeDatenAsync();
+    }
+
+    private async Task LadeDatenAsync()
+    {
+        await TryCatchAsync(async () =>
+        {
+            var termine = await TerminService.GetAllTermineAsync();
+            Termine = termine;
+        });
+    }
+
+    void OnSlotRender(SchedulerSlotRenderEventArgs args)
+    {
+        // Highlight today in month view
+        if (args.View.Text == "Month" && args.Start.Date == DateTime.Today)
+        {
+            args.Attributes["style"] = "background: var(--rz-scheduler-highlight-background-color, rgba(173, 216, 230, .2));";
+        }
+
+        // Highlight working hours (9-18)
+        if ((args.View.Text == "Week" || args.View.Text == "Day") && args.Start.Hour > 8 && args.Start.Hour < 19)
+        {
+            args.Attributes["style"] = "background: var(--rz-scheduler-highlight-background-color, rgba(173, 216, 230, .2));";
+        }
+    }
+
+    async Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
+    {
+
+        if (args.View.Text != "Year")
+        {
+            Termin daten = await DialogService.OpenAsync<AddTerminPage>("Neuer Termin",
+                new Dictionary<string, object> { { "Start", args.Start }, { "Kunde", Kunde } });
+
+            if (daten != null)
+            {
+                Termine.Add(daten);
+                // Either call the Reload method or reassign the Data property of the Scheduler
+                await scheduler.Reload();
+            }
+        }
+    }
+
+    async Task OnAppointmentSelect(SchedulerAppointmentSelectEventArgs<Termin> args)
+    {
+        var copy = new Termin
+        {
+            Start = args.Data.Start,
+            End = args.Data.End,
+            Text = args.Data.Text
+        };
+
+        var data = await DialogService.OpenAsync<EditTerminPage>("Edit Appointment", new Dictionary<string, object> { { "Appointment", copy } });
+
+        if (data != null)
+        {
+            // Update the appointment
+            args.Data.Start = data.Start;
+            args.Data.End = data.End;
+            args.Data.Text = data.Text;
+        }
+
+        await scheduler.Reload();
+    }
+
+    void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<Termin> args)
+    {
+        // Never call StateHasChanged in AppointmentRender - would lead to infinite loop
+        args.Attributes["style"] = "white-space: pre-line;";
+        args.Attributes["title"] = args.Data.Text;
+
+        if (args.Data.KundeId == Kunde.Id)
+        {
+            args.Attributes["style"] = "background: red";
+        }
+    }
+
+    async Task OnAppointmentMove(SchedulerAppointmentMoveEventArgs args)
+    {
+        var draggedAppointment = Termine.FirstOrDefault(x => x == args.Appointment.Data);
+
+        if (draggedAppointment != null)
+        {
+            var duration = draggedAppointment.End - draggedAppointment.Start;
+
+            if (args.SlotDate.TimeOfDay == TimeSpan.Zero)
+            {
+                draggedAppointment.Start = args.SlotDate.Date.Add(draggedAppointment.Start.TimeOfDay);
+            }
+            else
+            {
+                draggedAppointment.Start = args.SlotDate;
+            }
+
+            draggedAppointment.End = draggedAppointment.Start.Add(duration);
+
+            await scheduler.Reload();
+        }
+    }
+
+    void OnAppointmentMouseEnter(SchedulerAppointmentMouseEventArgs<Termin> args)
+    {
+        TooltipService.Open(args.Element, ts =>
+        @<RadzenStack Orientation="Orientation.Vertical" Gap="0" class="rz-p-6" Style="min-width: 250px; max-width: 500px;">
+            <RadzenText TextStyle="TextStyle.H4" class="rz-mb-4" Style="color: var(--rz-tooltip-color);">
+                @args.Data.Text
+            </RadzenText>
+            @foreach(var leistung in args.Data.Leistungen)
+            {
+                <RadzenText TextStyle="TextStyle.H4" class="rz-mb-4" Style="color: var(--rz-tooltip-color);">
+                    @leistung
+                </RadzenText>
+            }
+        </RadzenStack>, new TooltipOptions { Position = TooltipPosition.Right, Duration = null });
+    }
+
+    void OnAppointmentMouseLeave(SchedulerAppointmentMouseEventArgs<Termin> args)
+    {
+        TooltipService.Close();
+    }
+
+    void OnSpeichern()
+    {
+        if (selectedTermin != null)
+        {
+            // Hier Termin speichern (z. B. via Service oder API)
+        }
+        DialogService.Close(true);
+    }
+
+    void OnAbbrechen()
+    {
+        DialogService.Close(false);
+    }
+}
+

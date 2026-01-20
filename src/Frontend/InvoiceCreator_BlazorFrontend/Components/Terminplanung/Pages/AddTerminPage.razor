@@ -1,0 +1,112 @@
+﻿@using InvoiceCreator_BlazorFrontend.Components.Leistungskatalog.Services
+@using InvoiceCreator_BlazorFrontend.Components.Terminplanung.Services
+@using InvoiceCreator_BlazorFrontend.Components.Userverwaltung.Services
+@using Radzen
+@using Shared.Domain.Enums
+@using Shared.Domain.Models
+@inject DialogService DialogService
+@inject UserService UserService
+@inject LeistungService LeistungService
+@inject TerminService TerminService
+@inject NotificationService NotificationService
+
+
+<RadzenTemplateForm TItem="Termin" Data="@Termin" Submit=@OnSubmit>
+    <RadzenStack Gap="1rem">
+        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Wrap="FlexWrap.Wrap">
+            <RadzenLabel Text="Titel" Style="width: 4rem;font-weight:bold" />
+            <RadzenTextBox @bind-Value="@Termin.Text" Name="Text" Style="width: 12rem;" />
+            <RadzenRequiredValidator Component="Text" Text="Titel ist erforderlich" />
+        </RadzenStack>
+        <RadzenStack Orientation="Orientation.Vertical" Gap="4px">
+            <RadzenLabel Text="Servicemitarbeiter" Style="width: 4rem; font-weight:bold" />
+            <RadzenDropDown @bind-Value="@SelectedUser" TextProperty="Text" ValueProperty="Value" InputAttributes="@(new Dictionary<string, object>() { { "aria-label", "buttons justify content" } })"
+                            Data="@Users.Select(u => new { Text = $"{u.UserName}", Value = u })" Size="ButtonSize.Small" />
+        </RadzenStack>
+            <RadzenCard>
+                <RadzenPickList @bind-Source="@Leistungen" @bind-Target="@SelectedLeistungen" Style="height:500px; width:100%;" Orientation="Orientation.Horizontal"
+                    TextProperty="@nameof(Leistung.Bezeichnung)" AllowFiltering="true" Multiple="true" ShowHeader="true"
+                    ButtonGap="12px" ButtonJustifyContent="JustifyContent.Center" ButtonStyle="ButtonStyle.Secondary" ButtonSize="ButtonSize.Medium" ButtonShade="Shade.Default" ButtonVariant="Variant.Filled"
+                    ItemRender="OnItemRender">
+                        <SourceHeader >
+                            Leistungen:
+                        </SourceHeader>
+                        <TargetHeader >
+                            Ausgewählte Leistungen:
+                        </TargetHeader>
+                </RadzenPickList>
+            </RadzenCard>
+        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Wrap="FlexWrap.Wrap">
+            <RadzenLabel Text="Startzeit" Style="width: 4rem; font-weight: bold" />
+            <RadzenDatePicker @bind-Value="@Termin.Start" Name="Start" ShowTime="true" Style="width: 12rem;" />
+            <RadzenRequiredValidator Component="Start" Text="Startzeit ist erforderlich" />
+        </RadzenStack>
+        @* <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
+            <RadzenLabel Text="End" Style="width: 4rem;" />
+            <RadzenDatePicker Name="End" @bind-Value="@termin.End" ShowTime="true" Style="width: 12rem;" />
+            <RadzenRequiredValidator Component="End" Text="End is required" />
+        </RadzenStack> *@
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" ButtonStyle="ButtonStyle.Secondary"/>
+        </RadzenStack>
+    </RadzenStack>
+</RadzenTemplateForm>
+@code {
+    [Parameter]
+    public DateTime Start { get; set; }
+
+    [Parameter]
+    public DateTime End { get; set; }
+
+    [Parameter]
+    public Kunde Kunde { get; set; }
+
+    private List<User> Users = new();
+    private User SelectedUser;
+    private IEnumerable<Leistung> Leistungen = new List<Leistung>();
+    private IEnumerable<Leistung> SelectedLeistungen = new List<Leistung>();
+
+    Termin Termin = new Termin();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Termin.Text = String.Join(" ", Kunde.Vorname, Kunde.Nachname);
+        var users = await UserService.GetAllUsersAsync();
+        var leistungen = await LeistungService.GetAllLeistungenAsync();
+        Leistungen = leistungen;
+        Users = users;
+    }
+
+    void OnItemRender(PickListItemRenderEventArgs<Leistung> args)
+    {
+
+    }
+
+    protected override void OnParametersSet()
+    {
+        Termin.Start = Start;
+        Termin.KundeId = Kunde.Id;
+    }
+
+    async Task OnSubmit(Termin model)
+    {
+        if (SelectedUser == null) 
+        { 
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Fehlende Daten", Detail = "Auswahl des Servicemitarbeiters erforderlich.", Duration = 4000 });
+            return; 
+        } 
+
+        if (!SelectedLeistungen.Any()) 
+        { 
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Fehlende Daten", Detail = "Auswahl mindestens einer Leistung erforderlich.", Duration = 4000 });
+            return; 
+        }
+        Termin.GeschätzteDauer = TimeSpan.FromMinutes(SelectedLeistungen.Sum(l => l.Richtzeit.TotalMinutes));
+        Termin.End = Termin.Start + Termin.GeschätzteDauer;
+        Termin.Leistungen = SelectedLeistungen.Select(l => l.Bezeichnung).ToList();
+        Termin.Status = Terminstatus.Geplant;
+        Termin.UserId = SelectedUser.Id;
+        await TerminService.CreateTerminAsync(Termin);
+        DialogService.Close(model);
+    }
+}

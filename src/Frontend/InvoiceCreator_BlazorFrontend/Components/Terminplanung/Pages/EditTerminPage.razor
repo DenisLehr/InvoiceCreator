@@ -1,0 +1,42 @@
+﻿@using Radzen
+@using Shared.Domain.Models
+@inject DialogService DialogService
+
+<RadzenTemplateForm TItem="Termin" Data="@termin" Submit=@OnSubmit>
+    <RadzenStack Gap="1rem">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
+            <RadzenLabel Text="Title" Style="width: 6rem;" />
+            <RadzenTextBox @bind-Value="@termin.Text" Name="Text" Style="width: 12rem;" />
+            <RadzenRequiredValidator Component="Text" Text="Title is required" />
+        </RadzenStack>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
+            <RadzenLabel Text="Start" Style="width: 6rem;" />
+            <RadzenDatePicker @bind-Value="@termin.Start" Name="Start" ShowTime="true" Style="width: 12rem;" />
+            <RadzenRequiredValidator Component="Start" Text="Start is required" />
+        </RadzenStack>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
+            <RadzenLabel Text="End" Style="width: 6rem;" />
+            <RadzenDatePicker Name="End" @bind-Value="@termin.End" ShowTime="true" Style="width: 12rem;" />
+            <RadzenRequiredValidator Component="End" Text="End is required" />
+        </RadzenStack>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" />
+        </RadzenStack>
+    </RadzenStack>
+</RadzenTemplateForm>
+@code {
+    [Parameter]
+    public Termin Termin { get; set; }
+
+    Termin termin = new Termin();
+
+    protected override void OnParametersSet()
+    {
+        termin = Termin;
+    }
+
+    void OnSubmit(Termin model)
+    {
+        DialogService.Close(model);
+    }
+}

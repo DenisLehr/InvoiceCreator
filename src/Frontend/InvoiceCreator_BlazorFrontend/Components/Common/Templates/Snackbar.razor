@@ -1,0 +1,10 @@
+﻿@if (!string.IsNullOrWhiteSpace(Message))
+{
+    <div class="snackbar @CssClass">@Message</div>
+}
+
+@code {
+    [Parameter] public string? Message { get; set; }
+    [Parameter] public string CssClass { get; set; } = "snackbar-error";
+}
+

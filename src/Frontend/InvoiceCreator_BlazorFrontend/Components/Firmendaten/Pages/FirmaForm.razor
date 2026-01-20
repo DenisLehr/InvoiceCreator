@@ -1,0 +1,180 @@
+﻿@using InvoiceCreator_BlazorFrontend.Components.Firmendaten.Services
+@using Shared.Domain.Enums
+@using Shared.Domain.Models
+
+@rendermode InteractiveServer
+
+@inherits BasePage
+@inject FirmaService Service
+@inject NavigationManager Navigation
+@page "/firma/form/{id}"
+@page "/firma/form"
+
+
+<h3>Firmenformular</h3>
+
+@if (IsBusy)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Lädt...</span>
+    </div>
+}
+
+<Snackbar Message="@Fehlermeldung" />
+@if (Firma is not null)
+{
+    <EditForm Model="@Firma" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label>Firmenname</label>
+            <InputText class="form-control" @bind-Value="Firma.Name" />
+            <ValidationMessage For="@(() => Firma.Name)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Kontaktperson</label>
+            <InputText class="form-control" @bind-Value="Firma.Kontaktperson" />
+            <ValidationMessage For="@(() => Firma.Kontaktperson)" />
+        </div>
+
+        <div class="mb-3">
+            <label>USt-ID</label>
+            <InputText class="form-control" @bind-Value="Firma.UStId" />
+            <ValidationMessage For="@(() => Firma.UStId)" />
+        </div>
+
+        <div class="mb-3">
+            <label>E-Mail</label>
+            <InputText class="form-control" @bind-Value="Firma.Email" />
+            <ValidationMessage For="@(() => Firma.Email)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Telefon</label>
+            <InputText class="form-control" @bind-Value="Firma.Telefon" />
+            <ValidationMessage For="@(() => Firma.Telefon)" />
+        </div>
+
+        <fieldset class="border p-3 mb-3">
+            <legend class="float-none w-auto">Adresse</legend>
+
+            <div class="mb-2">
+                <label>Straße</label>
+                <InputText class="form-control" @bind-Value="Firma.Adresse.Strasse" />
+                <ValidationMessage For="@(() => Firma.Adresse.Strasse)" />
+            </div>
+            <div class="mb-2">
+                <label>Hausnummer</label>
+                <InputText class="form-control" @bind-Value="Firma.Adresse.Hausnummer" />
+                <ValidationMessage For="@(() => Firma.Adresse.Hausnummer)" />
+            </div>
+            <div class="mb-2">
+                <label>Hausnummerzusatz</label>
+                <InputText class="form-control" @bind-Value="Firma.Adresse.Hausnummerzusatz" />
+                <ValidationMessage For="@(() => Firma.Adresse.Hausnummerzusatz)" />
+            </div>
+            <div class="mb-2">
+                <label>PLZ</label>
+                <InputText class="form-control" @bind-Value="Firma.Adresse.PLZ" />
+                <ValidationMessage For="@(() => Firma.Adresse.PLZ)" />
+            </div>
+            <div class="mb-2">
+                <label>Ort</label>
+                <InputText class="form-control" @bind-Value="Firma.Adresse.Stadt" />
+                <ValidationMessage For="@(() => Firma.Adresse.Stadt)" />
+            </div>
+            <div class="mb-3">
+                <label>Land</label>
+                <InputSelect class="form-control" @bind-Value="Firma.Adresse.Land">
+                    <option value="">Bitte wählen</option>
+                    @foreach (var land in Enum.GetValues(typeof(Land)))
+                    {
+                        <option value="@land">@land</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => Firma.Adresse.Land)" />
+            </div>
+        </fieldset>
+
+        <fieldset class="border p-3 mb-3">
+            <legend class="float-none w-auto">Kontodaten</legend>
+
+            <div class="mb-2">
+                <label>Bankname</label>
+                <InputText class="form-control" @bind-Value="Firma.Bankverbindung.Bankname" />
+                <ValidationMessage For="@(() => Firma.Bankverbindung.Bankname)" />
+            </div>
+            <div class="mb-2">
+                <label>Kontoinhaber</label>
+                <InputText class="form-control" @bind-Value="Firma.Bankverbindung.Kontoinhaber" />
+                <ValidationMessage For="@(() => Firma.Bankverbindung.Kontoinhaber)" />
+            </div>
+            <div class="mb-2">
+                <label>IBAN</label>
+                <InputText class="form-control" @bind-Value="Firma.Bankverbindung.IBAN" />
+                <ValidationMessage For="@(() => Firma.Bankverbindung.IBAN)" />
+            </div>
+            <div class="mb-2">
+                <label>BIC</label>
+                <InputText class="form-control" @bind-Value="Firma.Bankverbindung.BIC" />
+                <ValidationMessage For="@(() => Firma.Bankverbindung.BIC)" />
+            </div>
+        </fieldset>
+
+        <button type="submit" class="btn btn-primary">
+            @(string.IsNullOrWhiteSpace(Firma.Id) ? "Anlegen" : "Aktualisieren")
+        </button>
+    </EditForm>
+}
+else
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Lädt...</span>
+    </div>
+}
+
+
+
+@code {
+    private Firma? Firma { get; set; }
+
+    [Parameter] public string? Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await TryCatchAsync(async () =>
+    {
+        if (!string.IsNullOrWhiteSpace(Id))
+        {
+            await LadeFirmaAsync(Id);
+        }
+        else
+        {
+            Firma = new();
+        }
+    });
+    }
+
+    private async Task LadeFirmaAsync(string id)
+    {
+        Firma = await Service.GetFirmaByIdAsync(id);
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (Firma.Id == null)
+        {
+            var result = await Service.CreateFirmaAsync(Firma);
+            Fehlermeldung = result.Hinweis;
+        }
+        else
+        {
+            var result = await Service.UpdateFirmaAsync(Firma);
+            Fehlermeldung = result.Hinweis;
+        }
+        Navigation.NavigateTo("/firmen");
+    }
+
+}

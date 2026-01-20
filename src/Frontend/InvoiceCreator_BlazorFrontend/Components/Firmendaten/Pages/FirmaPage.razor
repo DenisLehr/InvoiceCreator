@@ -1,0 +1,90 @@
+﻿@using InvoiceCreator_BlazorFrontend.Components.Firmendaten.Services
+@using Shared.Domain.Models
+
+@inject FirmaService Service
+@inject NavigationManager Navigation
+@inherits BasePage
+@rendermode InteractiveServer
+
+@page "/firmen"
+
+@if (Firma == null)
+{
+    <div class="alert alert-info mt-4">
+        Es ist keine Firma eingetragen. <button class="btn btn-sm btn-primary ms-2" @onclick="NavigiereZuNeuFormular">Firma hinzufügen</button>
+    </div>
+}
+
+
+<div class="firma-grid">
+    <div class="firma-card card shadow-sm" role="button" tabindex="0" @onclick="() => NavigiereZuDetails()"
+            aria-label="Details zu @Firma.Name anzeigen">
+        <div class="card-header d-flex align-items-center gap-3">
+            @* @if (!string.IsNullOrWhiteSpace(firma.LogoUrl))
+            {
+                <img class="company-logo" src="@firma.LogoUrl" alt="Logo @firma.Name" loading="lazy"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                <div class="avatar-fallback" style="display:none">@GetInitials(firma.Name)</div>
+            }
+            else
+            {
+                <div class="avatar-fallback">@GetInitials(firma.Name)</div>
+            } *@
+
+            <div class="header-title-wrapper">
+                <h5 class="mb-0 header-title">@Firma.Name</h5>
+                <div class="header-sub text-white-75">@Firma.Kontaktperson</div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <p class="description mb-0">Kontakt: <strong>@Firma.Email</strong></p>
+        </div>
+    </div>
+    <div class="card-footer d-flex justify-content-end gap-2">
+        <button class="btn btn-sm btn-outline-primary" @onclick="() => NavigiereZuEditAsync(Firma.Id)">Bearbeiten</button>
+            
+    </div>
+    <button class="btn btn-sm btn-primary ms-2" @onclick="NavigiereZuNeuFormular">Firma hinzufügen</button>
+</div>
+
+
+
+
+
+@code {
+    private Firma Firma = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LadeDatenAsync();
+    }
+
+    private async Task LadeDatenAsync()
+    {
+        await TryCatchAsync(async () =>
+        {
+            var result = await Service.GetFirmendatenAsync();
+            Firma = result;
+        });
+    }
+
+    private void NavigiereZuNeuFormular() =>
+        Navigation.NavigateTo("firma/form");
+
+    private void NavigiereZuDetails() =>
+        Navigation.NavigateTo($"/firmendaten");
+
+    private void NavigiereZuEditAsync(string id) =>
+        Navigation.NavigateTo($"/firma/form/{id}");
+
+    
+
+    string GetInitials(string name)
+    {
+    var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    return parts.Length == 1 ? parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpperInvariant()
+                                : $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant();
+    }
+}

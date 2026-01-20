@@ -1,0 +1,118 @@
+﻿@using InvoiceCreator_BlazorFrontend.Components.Kundenverwaltung.Services
+@using Shared.Domain.Models
+
+@inject KundeService Service
+@inject NavigationManager Navigation
+@inherits BasePage
+@rendermode InteractiveServer
+
+@page "/kunden"
+
+<PaginatedListPage TItem="Kunde"
+Titel="Kundenverwaltung"
+Items="@Kunden"
+AktuelleSeite="@AktuelleSeite"
+EintraegeProSeite="@EintraegeProSeite"
+EintraegeAuswahl="@EintraegeAuswahl"
+IsBusy="@IsBusy"
+IstVorherigeDeaktiviert="IstVorherigeDeaktiviert"
+IstNaechsteDeaktiviert="IstNaechsteDeaktiviert"
+OnSeiteGewechselt="SeiteGewechselt"
+SeitenGesamt="SeitenGesamt"
+OnEintraegeProSeiteGeaendert="EintraegeGeaendert"
+Suchbegriff="@SuchBegriff"
+OnSuchbegriffGeaendert="SuchbegriffGeaendert"
+OnNeuFormular="@NavigiereZuNeuFormular">
+
+    <ChildContentHeader>
+        <tr>
+            <th>Name</th>
+            <th>Firma</th>
+            <th>E-Mail</th>
+            <th>Telefon</th>
+        </tr>
+    </ChildContentHeader>
+    <ChildContentRow Context="kunde">
+        <tr @onclick="() => NavigiereZuDetails(kunde.Id)" style="cursor:pointer;">
+            <td>@kunde.Vorname @kunde.Nachname</td>
+            <td>@kunde.Firmenname</td>
+            <td>@kunde.Email</td>
+            <td>@kunde.Telefon</td>
+            <td>
+                <button class="btn btn-sm btn-outline-danger" @onclick:stopPropagation="true" @onclick="() => DeleteAsync(kunde.Id)">Löschen</button>
+                <button class="btn btn-sm btn-outline-secondary" @onclick:stopPropagation="true" @onclick="() => NavigiereZuEditAsync(kunde.Id)">Bearbeiten</button>
+            </td>
+        </tr>
+    </ChildContentRow>
+</PaginatedListPage>
+
+
+
+
+
+@code {
+    private List<Kunde> Kunden = new();
+    private string? SuchBegriff { get; set; } = string.Empty;
+    private int AktuelleSeite = 1;
+    private int SeitenGesamt { get; set; }
+    private int EintraegeProSeite = 10;
+    private List<int> EintraegeAuswahl = new() { 5, 10, 25, 50 };
+    private bool IstVorherigeDeaktiviert => AktuelleSeite <= 1;
+    private bool IstNaechsteDeaktiviert => Kunden.Count < EintraegeProSeite;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LadeDatenAsync();
+    }
+
+    private async Task LadeDatenAsync()
+    {
+        await TryCatchAsync(async () =>
+        {
+            var result = await Service.GetPagedKundenAsync(SuchBegriff, AktuelleSeite, EintraegeProSeite);
+            Kunden = result.DtoListe.ToList();
+            EintraegeProSeite = result.ElementeProSeite;
+            SeitenGesamt = result.GesamtAnzahl;
+        });
+    }
+    private async Task SeiteGewechselt(int neueSeite)
+    {
+        AktuelleSeite = neueSeite;
+        await LadeDatenAsync();
+    }
+
+    private async Task EintraegeGeaendert(int neueAnzahl)
+    {
+        EintraegeProSeite = neueAnzahl;
+        AktuelleSeite = 1;
+        await LadeDatenAsync();
+    }
+
+    private async Task SuchbegriffGeaendert(string begriff)
+    {
+        SuchBegriff = begriff;
+        await LadeDatenAsync();
+    }
+
+    private void NavigiereZuNeuFormular() =>
+        Navigation.NavigateTo("kunde/form");
+
+    private void NavigiereZuDetails(string id) =>
+        Navigation.NavigateTo($"/kunde/details/{id}");
+
+    private void NavigiereZuEditAsync(string id) =>
+        Navigation.NavigateTo($"/kunde/form/{id}");
+
+    private async Task DeleteAsync(string id)
+    {
+        await TryCatchAsync(async () =>
+        {
+            var result = await Service.DeleteKundeAsync(id);
+            Kunden.RemoveAll(k => k.Id == id);
+        });
+        await LadeDatenAsync();
+    }
+
+    
+}

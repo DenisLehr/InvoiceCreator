@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	
+
+	  <!-- NuGet-spezifische Metadaten -->
+	<PackageId>Denis.InvoiceCreator.Shared</PackageId>
+	<Version>2.0.5</Version>
+	<AssemblyVersion>2.0.5.0</AssemblyVersion>
+	<FileVersion>2.0.5.0</FileVersion>
+	<Authors>Denis Lehr</Authors>
+	<Company>Ciblu-software GmbH</Company>
+	<Description>Shared DTOs, Enums für InvoiceCreator Projekt</Description>
+	<PackageTags>Shared;DTO;Enums;Validation;Blazor;MAUI</PackageTags>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="15.0.1" />
+    <PackageReference Include="QuestPDF" Version="2025.7.3" />
+  </ItemGroup>
+
+</Project>

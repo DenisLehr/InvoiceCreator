@@ -1,0 +1,94 @@
+﻿@using InvoiceCreator_BlazorFrontend.Components.Leistungskatalog.Services
+@using Shared.Domain.Extensions
+@using Shared.Domain.Models
+
+@inject LeistungService Service
+@inject NavigationManager Navigation
+@inherits BasePage
+@rendermode InteractiveServer
+
+@page "/leistung/details/{id}"
+
+@if (IsBusy)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Lädt...</span>
+    </div>
+}
+
+<Snackbar Message="@Fehlermeldung" />
+
+@if (Leistung is not null)
+{
+    <div class="leistung-card card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="header-left d-flex align-items-center gap-2">
+                <i class="fas fa-clipboard-list header-icon" aria-hidden="true"></i>
+                <h5 class="mb-0 header-title">@Leistung.Bezeichnung</h5>
+            </div>
+            <span class="badge code-badge">Code: @Leistung.Code</span>
+        </div>
+
+        <div class="card-body">
+            <p class="description mb-3"><strong>Beschreibung:</strong> @Leistung.Beschreibung</p>
+
+            <div class="row gx-2 gy-2 keyvalue-grid">
+                @RenderKeyValue("Richtzeit", $"{Leistung.Richtzeit} Minuten", "far fa-clock")
+                @RenderKeyValue("Pauschalpreis", Leistung.Pauschalpreis.ToString("C", CultureInfo.CurrentCulture), "fas fa-euro-sign")
+                @RenderKeyValue("Pauschalgrenze", $"{Leistung.Pauschalgrenze} Minuten", "fas fa-hourglass-half")
+                @RenderKeyValue("Preis pro 15 Min", Leistung.PreisPro15Min.ToString("C", CultureInfo.CurrentCulture), "fas fa-tag")
+                @RenderKeyValue("Steuersatz", Leistung.Steuersatz.GetDisplayName(), "fas fa-percentage")
+                @RenderKeyValue("Vor-Ort-Leistung", Leistung.IstVorOrt ? "Ja" : "Nein", "fas fa-house-user")
+                @RenderKeyValue("Zusatzlogik aktiv", Leistung.HatZusatzlogik ? "Ja" : "Nein", "fas fa-magic")
+            </div>
+
+            @if (Leistung.HatZusatzlogik && Leistung.Zusatzlogik is not null)
+            {
+                <div class="zusatzlogik mt-3 p-3 rounded">
+                    <h6 class="mb-2"><i class="fas fa-cogs me-2"></i>Zusatzlogik</h6>
+                    <div class="row gx-2 gy-2 small keyvalue-grid">
+                        @RenderKeyValue("Typ", Leistung.Zusatzlogik.Typ.GetDisplayName(), "fas fa-list")
+                        @RenderKeyValue("Grenze", Leistung.Zusatzlogik.Grenze.ToString() ?? "—", "fas fa-filter")
+                        @RenderKeyValue("Preis pro Einheit", Leistung.Zusatzlogik.PreisProEinheit.ToString("C", CultureInfo.CurrentCulture), "fas fa-coins")
+                    </div>
+                </div>
+            }
+
+            <div class="mt-4 d-flex gap-2 justify-content-end">
+                <button class="btn btn-outline-primary btn-with-icon" @onclick="Bearbeiten"><i class="fas fa-edit me-1"></i>Bearbeiten</button>
+                <button class="btn btn-outline-secondary btn-with-icon" @onclick="Zurueck"><i class="fas fa-arrow-left me-1"></i>Zurück</button>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p>Kunde nicht gefunden.</p>
+}
+
+@code {
+    [Parameter] public string? Id { get; set; }
+    private Leistung? Leistung;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await TryCatchAsync(async () =>
+        {
+            if (!string.IsNullOrWhiteSpace(Id))
+                Leistung = await Service.GetLeistungByIdAsync(Id);
+        });
+    }
+
+    private void Zurueck() => Navigation.NavigateTo("/leistungen");
+    private void Bearbeiten() => Navigation.NavigateTo($"/leistung/form/{Id}");
+
+    RenderFragment RenderKeyValue(string label, string value, string iconClass) => @<div class="col-12 col-md-6">
+        <div class="kv d-flex justify-content-between align-items-center">
+            <div class="kv-left d-flex align-items-center gap-2">
+                <i class="@iconClass kv-icon" aria-hidden="true"></i>
+                <span class="kv-label">@label</span>
+            </div>
+            <div class="kv-value">@value</div>
+        </div>
+    </div>;
+}

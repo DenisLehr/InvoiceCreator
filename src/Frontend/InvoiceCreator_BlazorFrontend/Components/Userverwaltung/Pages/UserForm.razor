@@ -1,0 +1,109 @@
+﻿@using InvoiceCreator_BlazorFrontend.Components.Userverwaltung.Services
+@using Shared.Domain.Enums
+@using Shared.Domain.Models
+
+@rendermode InteractiveServer
+
+@inherits BasePage
+@inject UserService Service
+@inject NavigationManager Navigation
+@page "/user/form/{id}"
+@page "/user/form"
+
+
+
+<h3>Userformular</h3>
+
+@if (IsBusy)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Lädt...</span>
+    </div>
+}
+
+<Snackbar Message="@Fehlermeldung" />
+@if (User is not null)
+{
+    <EditForm Model="@User" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label>Username</label>
+            <InputText class="form-control" @bind-Value="User.UserName" />
+            <ValidationMessage For="@(() => User.UserName)" />
+        </div>
+
+        <div class="mb-3">
+            <label>E-Mail</label>
+            <InputText class="form-control" @bind-Value="User.Email" />
+            <ValidationMessage For="@(() => User.Email)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Rolle</label>
+            <InputSelect class="form-control" @bind-Value="User.Rolle">
+                <option value="">Bitte wählen</option>
+                @foreach (var rolle in Enum.GetValues(typeof(Rolle)))
+                {
+                    <option value="@rolle">@rolle</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => User.Rolle)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            @(string.IsNullOrWhiteSpace(User.Id) ? "Anlegen" : "Aktualisieren")
+        </button>
+    </EditForm>
+}
+else
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Lädt...</span>
+    </div>
+}
+
+
+
+@code {
+    private User? User { get; set; }
+
+    [Parameter] public string? Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await TryCatchAsync(async () =>
+    {
+        if (!string.IsNullOrWhiteSpace(Id))
+        {
+            await LadeUserAsync(Id);
+        }
+        else
+        {
+            User = new();
+        }
+    });
+    }
+
+    private async Task LadeUserAsync(string id)
+    {
+        User = await Service.GetUserByIdAsync(id);
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (User.Id == null)
+        {
+            var result = await Service.CreateUserAsync(User);
+            Fehlermeldung = result.Hinweis;
+        }
+        else
+        {
+            var result = await Service.UpdateUserAsync(User);
+            Fehlermeldung = result.Hinweis;
+        }
+        Navigation.NavigateTo("/users");
+    }
+
+}

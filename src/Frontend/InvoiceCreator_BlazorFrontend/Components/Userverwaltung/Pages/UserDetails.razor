@@ -1,0 +1,51 @@
+﻿@using InvoiceCreator_BlazorFrontend.Components.Kundenverwaltung.Services
+@using InvoiceCreator_BlazorFrontend.Components.Userverwaltung.Services
+@using InvoiceCreator_BlazorFrontend.Components.Userverwaltung.Templates
+@using Shared.Domain.Models
+
+@inject UserService Service
+@inject NavigationManager Navigation
+@inherits BasePage
+@rendermode InteractiveServer
+
+@page "/user/details/{id}"
+<h3>Userdetails</h3>
+
+@if (IsBusy)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Lädt...</span>
+    </div>
+}
+
+<Snackbar Message="@Fehlermeldung" />
+
+@if (User is not null)
+{
+    <UserDetailsCard TItem="User"
+                    User="User"
+                    ZurueckClicked="Zurueck"
+                    BearbeitenClicked="Bearbeiten">
+                </UserDetailsCard>
+}
+else
+{
+    <p>Kunde nicht gefunden.</p>
+}
+
+@code {
+    [Parameter] public string? Id { get; set; }
+    private User? User;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await TryCatchAsync(async () =>
+        {
+            if (!string.IsNullOrWhiteSpace(Id))
+                User = await Service.GetUserByIdAsync(Id);
+        });
+    }
+
+    private void Zurueck() => Navigation.NavigateTo("/users");
+    private void Bearbeiten() => Navigation.NavigateTo($"/user/form/{Id}");
+}

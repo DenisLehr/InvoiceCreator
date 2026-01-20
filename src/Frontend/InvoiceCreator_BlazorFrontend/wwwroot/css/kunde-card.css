@@ -1,0 +1,155 @@
+﻿.customer-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(16,24,40,0.06);
+    padding: 18px;
+    max-width: 520px;
+    font-family: Inter, "Segoe UI", Roboto, sans-serif;
+    color: #111827;
+}
+
+.info-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+    font-size: 0.95rem;
+    color: #1f2937;
+}
+
+    .info-line i {
+        color: #2563eb;
+        min-width: 20px;
+        text-align: center;
+    }
+
+    .info-line a {
+        color: #2563eb;
+        min-width: 20px;
+        text-align: center;
+    }
+
+    .info-line strong {
+        font-weight: 600;
+        color: #374151;
+    }
+
+.label i {
+    margin-right: 6px;
+    color: #2563eb;
+    width: 18px;
+    text-align: center;
+}
+
+.card-header {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    background: linear-gradient(135deg,#0ea5e9,#2563eb);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.125rem;
+    flex: 0 0 56px;
+}
+
+.header-meta {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.company {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 2px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn {
+    border: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-ghost {
+    background: transparent;
+    color: #2563eb;
+    border: 1px solid rgba(37,99,235,0.12);
+}
+
+.card-body {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.label {
+    width: 120px;
+    color: #6b7280;
+    font-size: 0.85rem;
+    flex: 0 0 120px;
+}
+
+.value {
+    color: #111827;
+    font-weight: 600;
+    word-break: break-word;
+}
+
+.separator {
+    height: 1px;
+    background: #f3f4f6;
+    margin: 10px 0;
+    border-radius: 2px;
+}
+
+@media (max-width:520px) {
+    .customer-card {
+        padding: 14px;
+    }
+
+    .label {
+        width: 110px;
+        flex: 0 0 110px;
+    }
+
+    .avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 1rem;
+        border-radius: 8px;
+    }
+}

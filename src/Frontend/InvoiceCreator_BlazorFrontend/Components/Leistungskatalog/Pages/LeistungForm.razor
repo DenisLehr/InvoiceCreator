@@ -1,0 +1,172 @@
+﻿@using InvoiceCreator_BlazorFrontend.Components.Leistungskatalog.Services
+@using Radzen
+@using Shared.Domain.Enums
+@using Shared.Domain.Extensions
+@using Shared.Domain.Models
+
+@rendermode InteractiveServer
+
+@inherits BasePage
+@inject LeistungService Service
+@inject NavigationManager Navigation
+@page "/leistung/form/{id}"
+@page "/leistung/form"
+
+
+
+<h3>Leistungskatalog</h3>
+
+@if (IsBusy)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Lädt...</span>
+    </div>
+}
+
+<Snackbar Message="@Fehlermeldung" />
+@if (Leistung is not null)
+{
+    <EditForm Model="@Leistung" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label>Bezeichnung</label>
+            <InputText class="form-control" @bind-Value="Leistung.Bezeichnung" />
+            <ValidationMessage For="@(() => Leistung.Bezeichnung)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Beschreibung</label>
+            <InputTextArea class="form-control" @bind-Value="Leistung.Beschreibung" />
+            <ValidationMessage For="@(() => Leistung.Beschreibung)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Richtzeit</label>
+            <RadzenTimeSpanPicker @bind-Value="Leistung.Richtzeit" AllowClear="true" AllowInput="true" ShowPopupButton="true" FieldPrecision="@fieldPrecision" PadTimeValues="true" ShowConfirmationButton="true" Min="@TimeSpan.Zero" Max="@TimeSpan.FromHours(12)" />
+            <ValidationMessage For="@(() => Leistung.Richtzeit)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Pauschalpreis in €</label>
+            <InputNumber class="form-control" @bind-Value="Leistung.Pauschalpreis"  />
+            <ValidationMessage For="@(() => Leistung.Pauschalpreis)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Pauschalgrenze</label>
+            <RadzenTimeSpanPicker @bind-Value="Leistung.Pauschalgrenze" AllowClear="true" AllowInput="true" ShowPopupButton="true" FieldPrecision="@fieldPrecision" PadTimeValues="true" ShowConfirmationButton="true" Min="@TimeSpan.Zero" Max="@TimeSpan.FromHours(12)" />
+            <ValidationMessage For="@(() => Leistung.Pauschalgrenze)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Preis pro weitere 15 Minuten</label>
+            <InputNumber class="form-control" @bind-Value="Leistung.PreisPro15Min" />
+            <ValidationMessage For="@(() => Leistung.PreisPro15Min)" />
+        </div>
+
+        <div class="mb-3">
+            <InputCheckbox @bind-Value="Leistung.IstVorOrt" />
+            <label class="ms-2">Vor-Ort-Leistung</label>
+        </div>
+
+        <div class="mb-3">
+            <InputCheckbox @bind-Value="Leistung.HatZusatzlogik" />
+            <label class="ms-2">Zusatzoptionen</label>
+        </div>
+        @if(Leistung.HatZusatzlogik)
+        {
+            <fieldset class="border p-3 mb-3">
+                <legend class="float-none w-auto">Zusatzoptionen</legend>
+                <div class="mb-3">
+                    <label>Typ</label>
+                    <InputSelect class="form-control" @bind-Value="Leistung.Zusatzlogik!.Typ">
+                        <option value="">Bitte wählen</option>
+                        @foreach (var typ in Enum.GetValues(typeof(ZusatzLogikTyp)).Cast<ZusatzLogikTyp>())
+                        {
+                            <option value="@typ">@typ.GetDisplayName()</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Leistung.Zusatzlogik!.Typ)" />
+                </div>
+                <div class="mb-2">
+                    <label>Obergrenze</label>
+                    <InputNumber class="form-control" @bind-Value="Leistung.Zusatzlogik!.Grenze" />
+                    <ValidationMessage For="@(() => Leistung.Zusatzlogik.Grenze)" />
+                </div>
+                <div class="mb-2">
+                    <label>Preis pro Einheit</label>
+                    <InputNumber class="form-control" @bind-Value="Leistung.Zusatzlogik!.PreisProEinheit" />
+                    <ValidationMessage For="@(() => Leistung.Zusatzlogik!.PreisProEinheit)" />
+                </div>
+            </fieldset>
+        }
+        <label>Steuersatz</label>
+        <InputSelect class="form-control" @bind-Value="Leistung.Steuersatz">
+            <option value="">Bitte wählen</option>
+            @foreach (var steuersatz in Enum.GetValues(typeof(Steuersatz)).Cast<Steuersatz>())
+            {
+                <option value="@steuersatz">@steuersatz.GetDisplayName()</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => Leistung.Steuersatz)" />
+        
+
+        <button type="submit" class="btn btn-primary">
+            @(string.IsNullOrWhiteSpace(Leistung.Id) ? "Anlegen" : "Aktualisieren")
+        </button>
+    </EditForm>
+}
+else
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Lädt...</span>
+    </div>
+}
+
+
+
+@code {
+    private Leistung? Leistung { get; set; }
+
+    [Parameter] public string? Id { get; set; }
+
+    TimeSpanUnit fieldPrecision = TimeSpanUnit.Minute;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await TryCatchAsync(async () =>
+        {
+            if (!string.IsNullOrWhiteSpace(Id))
+            {
+                await LadeLeistungAsync(Id);
+            }
+            else
+            {
+                Leistung = new();
+            }
+        });
+    }
+
+    private async Task LadeLeistungAsync(string id)
+    {
+        Leistung = await Service.GetLeistungByIdAsync(id);
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (Leistung.Id == null)
+        {
+            var result = await Service.CreateLeistungAsync(Leistung);
+            Fehlermeldung = result.Hinweis;
+        }
+        else
+        {
+            var result = await Service.UpdateLeistungAsync(Leistung);
+            Fehlermeldung = result.Hinweis;
+        }
+        Navigation.NavigateTo("/leistungen");
+    }
+
+}

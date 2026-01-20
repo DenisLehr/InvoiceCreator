@@ -1,0 +1,182 @@
+﻿@using InvoiceCreator_BlazorFrontend.Components.Kundenverwaltung.Services
+@using Shared.Domain.Enums
+@using Shared.Domain.Extensions
+@using Shared.Domain.Models
+
+
+@rendermode InteractiveServer
+
+@inherits BasePage
+@inject KundeService Service
+@inject NavigationManager Navigation
+@page "/kunde/form/{id}"
+@page "/kunde/form"
+
+
+
+<h3>Kundenformular</h3>
+
+@if (IsBusy)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Lädt...</span>
+    </div>
+}
+
+<Snackbar Message="@Fehlermeldung" />
+@if (Kunde is not null)
+{
+    <EditForm Model="@Kunde" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label>Vorname</label>
+            <InputText class="form-control" @bind-Value="Kunde.Vorname" />
+            <ValidationMessage For="@(() => Kunde.Vorname)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Nachname</label>
+            <InputText class="form-control" @bind-Value="Kunde.Nachname" />
+            <ValidationMessage For="@(() => Kunde.Nachname)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Firmenname</label>
+            <InputText class="form-control" @bind-Value="Kunde.Firmenname" />
+            <ValidationMessage For="@(() => Kunde.Firmenname)" />
+        </div>
+
+        <div class="mb-3">
+            <label>E-Mail</label>
+            <InputText class="form-control" @bind-Value="Kunde.Email" />
+            <ValidationMessage For="@(() => Kunde.Email)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Telefon</label>
+            <InputText class="form-control" @bind-Value="Kunde.Telefon" />
+            <ValidationMessage For="@(() => Kunde.Telefon)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Geburtsdatum</label>
+            <InputDate class="form-control" @bind-Value="Kunde.Geburtsdatum" />
+            <ValidationMessage For="@(() => Kunde.Geburtsdatum)" />
+        </div>
+
+        <div class="mb-3">
+            <label>Geschlecht</label>
+            <InputSelect class="form-control" @bind-Value="Kunde.Geschlecht">
+                <option value="">Bitte wählen</option>
+                @foreach (var geschlecht in Enum.GetValues(typeof(Geschlecht)).Cast<Geschlecht>())
+                {
+                    <option value="@geschlecht">@geschlecht.GetDisplayName()</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => Kunde.Geschlecht)" />
+        </div>
+
+        <fieldset class="border p-3 mb-3">
+            <legend class="float-none w-auto">Adresse</legend>
+
+            <div class="mb-2">
+                <label>Straße</label>
+                <InputText class="form-control" @bind-Value="Kunde.Adresse.Strasse" />
+                <ValidationMessage For="@(() => Kunde.Adresse.Strasse)" />
+            </div>
+            <div class="mb-2">
+                <label>Hausnummer</label>
+                <InputText class="form-control" @bind-Value="Kunde.Adresse.Hausnummer" />
+                <ValidationMessage For="@(() => Kunde.Adresse.Hausnummer)" />
+            </div>
+            <div class="mb-2">
+                <label>Hausnummerzusatz</label>
+                <InputText class="form-control" @bind-Value="Kunde.Adresse.Hausnummerzusatz" />
+                <ValidationMessage For="@(() => Kunde.Adresse.Hausnummerzusatz)" />
+            </div>
+            <div class="mb-2">
+                <label>PLZ</label>
+                <InputText class="form-control" @bind-Value="Kunde.Adresse.PLZ" />
+                <ValidationMessage For="@(() => Kunde.Adresse.PLZ)" />
+            </div>
+            <div class="mb-2">
+                <label>Ort</label>
+                <InputText class="form-control" @bind-Value="Kunde.Adresse.Stadt" />
+                <ValidationMessage For="@(() => Kunde.Adresse.Stadt)" />
+            </div>
+            <div class="mb-3">
+                <label>Land</label>
+                <InputSelect class="form-control" @bind-Value="Kunde.Adresse.Land">
+                    <option value="">Bitte wählen</option>
+                    @foreach (var land in Enum.GetValues(typeof(Land)))
+                    {
+                        <option value="@land">@land</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => Kunde.Adresse.Land)" />
+            </div>
+        </fieldset>
+
+        <div class="mb-3">
+            <label>Kundenrabatt (%)</label>
+            <InputNumber class="form-control" @bind-Value="Kunde.KundenRabatt" />
+            <ValidationMessage For="@(() => Kunde.KundenRabatt)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            @(string.IsNullOrWhiteSpace(Kunde.Id) ? "Anlegen" : "Aktualisieren")
+        </button>
+    </EditForm>
+}
+else
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Lädt...</span>
+    </div>
+}
+
+
+
+@code {
+    private Kunde? Kunde { get; set; }
+
+    [Parameter] public string? Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await TryCatchAsync(async () =>
+    {
+        if (!string.IsNullOrWhiteSpace(Id))
+        {
+            await LadeKundeAsync(Id);
+        }
+        else
+        {
+            Kunde = new();
+        }
+    });
+    }
+
+    private async Task LadeKundeAsync(string id)
+    {
+        Kunde = await Service.GetKundeByIdAsync(id);
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (Kunde.Id == null)
+        {
+            var result = await Service.CreateKundeAsync(Kunde);
+            Fehlermeldung = result.Hinweis;
+        }
+        else
+        {
+            var result = await Service.UpdateKundeAsync(Kunde);
+            Fehlermeldung = result.Hinweis;
+        }
+        Navigation.NavigateTo("/kunden");
+    }
+
+}

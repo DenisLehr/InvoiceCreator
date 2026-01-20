@@ -1,0 +1,130 @@
+﻿@typeparam TItem
+
+<div class="list-page">
+    <h3>@Titel</h3>
+
+    @if (IsBusy)
+    {
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Lädt...</span>
+        </div>
+    }
+    else
+    {
+        <div class="container-fluid">
+            <div>
+                <button class="btn btn-primary" @onclick="NavigiereZuNeuFormular">Neu hinzufügen</button>
+
+            </div>
+            <div class="search-bar">
+                <label for="suchfeld">Suche:</label>
+                <input id="suchfeld" type="text" @bind="Suchbegriff" @oninput="SuchbegriffGeaendert" />
+            </div>
+        </div>
+
+
+        <div>
+            <table class="table">
+                <thead>
+                    @ChildContentHeader
+                </thead>
+                <tbody>
+                    @foreach (var item in Items)
+                    {
+                        @ChildContentRow(item)
+                    }
+                </tbody>
+            </table>
+
+            <div class="pagination-controls">
+                <!-- Page Size Dropdown -->
+                <label for="eintraege">Anzahl pro Seite: </label>
+                <select @onchange="OnEintraegeProSeiteChanged" id="eintraege">
+                    @foreach (var anzahl in EintraegeAuswahl)
+                    {
+                        <option value="@anzahl" selected="@(anzahl==EintraegeProSeite)">@anzahl</option>
+                    }
+                </select>
+
+                <button @onclick="NavigiereVorherige" disabled="@IstVorherigeDeaktiviert">Vorherige</button>
+
+                <!-- Page Number Buttons -->
+                @foreach (var seitenNummer in Enumerable.Range(1, SeitenGesamt))
+                {
+                    <button @onclick="() => NavigiereZuSeite(seitenNummer)" class="@(AktuelleSeite == seitenNummer ? "active" : "")">
+                        @seitenNummer
+                    </button>
+                }
+
+                <!-- Next Page Button -->
+                <button @onclick="NavigiereNaechste" disabled="@IstNaechsteDeaktiviert">Nächste</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Titel { get; set; }
+    [Parameter] public bool IsBusy { get; set; }
+
+    [Parameter] public IEnumerable<TItem> Items { get; set; }
+    [Parameter] public IEnumerable<int> EintraegeAuswahl { get; set; }
+
+    [Parameter] public int EintraegeProSeite { get; set; }
+    [Parameter] public int SeitenGesamt { get; set; }
+    [Parameter] public int AktuelleSeite { get; set; }
+    [Parameter] public string Suchbegriff { get; set; } = string.Empty;
+
+    [Parameter] public bool IstVorherigeDeaktiviert { get; set; }
+    [Parameter] public bool IstNaechsteDeaktiviert { get; set; }
+
+    [Parameter] public EventCallback<string> OnSuchbegriffGeaendert { get; set; }
+    [Parameter] public EventCallback<int> OnSeiteGewechselt { get; set; }
+    [Parameter] public EventCallback<int> OnEintraegeProSeiteGeaendert { get; set; }
+    [Parameter] public EventCallback OnNeuFormular { get; set; }
+
+    [Parameter] public RenderFragment ChildContentHeader { get; set; }
+    [Parameter] public RenderFragment<TItem> ChildContentRow { get; set; }
+
+    
+    private async void NavigiereZuSeite(int seite)
+    {
+        AktuelleSeite = seite;
+        await OnSeiteGewechselt.InvokeAsync(seite);
+    }
+
+    private async void NavigiereVorherige()
+    {
+        AktuelleSeite--;
+        await OnSeiteGewechselt.InvokeAsync(AktuelleSeite);
+    }
+
+    private async void NavigiereNaechste()
+    {
+        AktuelleSeite++;
+        await OnSeiteGewechselt.InvokeAsync(AktuelleSeite);
+    }
+
+    private async void NavigiereZuNeuFormular()
+    {
+        
+        await OnNeuFormular.InvokeAsync();
+    }
+
+    private async Task OnEintraegeProSeiteChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var neueAnzahl))
+        {
+            await OnEintraegeProSeiteGeaendert.InvokeAsync(neueAnzahl);
+        }
+    }
+
+    private async Task SuchbegriffGeaendert(ChangeEventArgs e)
+    {
+        var neuerBegriff = e.Value?.ToString() ?? string.Empty;
+      
+        await OnSuchbegriffGeaendert.InvokeAsync(neuerBegriff);
+    }
+
+}
+

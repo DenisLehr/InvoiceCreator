@@ -1,0 +1,122 @@
+﻿@using InvoiceCreator_BlazorFrontend.Components.Kundenverwaltung.Services
+@using InvoiceCreator_BlazorFrontend.Components.Leistungskatalog.Services
+@using Shared.Domain.Models
+
+@inject LeistungService Service
+@inject NavigationManager Navigation
+@inherits BasePage
+@rendermode InteractiveServer
+
+@page "/leistungen"
+
+<PaginatedListPage TItem="Leistung"
+                   Titel="Leistungsübersicht"
+                   Items="@Leistungen"
+                   AktuelleSeite="@AktuelleSeite"
+                   EintraegeProSeite="@EintraegeProSeite"
+                   EintraegeAuswahl="@EintraegeAuswahl"
+                   IsBusy="@IsBusy"
+                   IstVorherigeDeaktiviert="IstVorherigeDeaktiviert"
+                   IstNaechsteDeaktiviert="IstNaechsteDeaktiviert"
+                   OnSeiteGewechselt="SeiteGewechselt"
+                   SeitenGesamt="SeitenGesamt"
+                   OnEintraegeProSeiteGeaendert="EintraegeGeaendert"
+                   Suchbegriff="@SuchBegriff"
+                   OnSuchbegriffGeaendert="SuchbegriffGeaendert"
+                   OnNeuFormular="@NavigiereZuNeuFormular">
+
+    <ChildContentHeader>
+        <tr>
+            <th>Leistungs-Code</th>
+            <th>Bezeichnung</th>
+            <th>Pauschalpreis</th>
+            <th>Pauschalgrenze</th>
+            <th>Pro weitere 15 Min</th>
+        </tr>
+    </ChildContentHeader>
+    <ChildContentRow Context="leistung">
+        <tr @onclick="() => NavigiereZuDetails(leistung.Id)" style="cursor:pointer;">
+            <td>@leistung.Code</td>
+            <td>@leistung.Bezeichnung</td>
+            <td>@leistung.Pauschalpreis €</td>
+            <td>@leistung.Pauschalgrenze.TotalMinutes Min</td>
+            <td>@leistung.PreisPro15Min €</td>
+            <td>
+                <button class="btn btn-sm btn-outline-danger" @onclick:stopPropagation="true" @onclick="() => DeleteAsync(leistung.Id)">Löschen</button>
+                <button class="btn btn-sm btn-outline-secondary" @onclick:stopPropagation="true" @onclick="() => NavigiereZuEditAsync(leistung.Id)">Bearbeiten</button>
+            </td>
+        </tr>
+    </ChildContentRow>
+</PaginatedListPage>
+
+
+
+
+
+@code {
+    private List<Leistung> Leistungen = new();
+    private string? SuchBegriff { get; set; } = string.Empty;
+    private int AktuelleSeite = 1;
+    private int SeitenGesamt { get; set; }
+    private int EintraegeProSeite = 10;
+    private List<int> EintraegeAuswahl = new() { 5, 10, 25, 50 };
+    private bool IstVorherigeDeaktiviert => AktuelleSeite <= 1;
+    private bool IstNaechsteDeaktiviert => Leistungen.Count < EintraegeProSeite;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LadeDatenAsync();
+    }
+
+    private async Task LadeDatenAsync()
+    {
+        await TryCatchAsync(async () =>
+        {
+            var result = await Service.GetPagedLeistungenAsync(SuchBegriff, AktuelleSeite, EintraegeProSeite);
+            Leistungen = result.DtoListe.ToList();
+            EintraegeProSeite = result.ElementeProSeite;
+            SeitenGesamt = result.GesamtAnzahl;
+        });
+    }
+    private async Task SeiteGewechselt(int neueSeite)
+    {
+        AktuelleSeite = neueSeite;
+        await LadeDatenAsync();
+    }
+
+    private async Task EintraegeGeaendert(int neueAnzahl)
+    {
+        EintraegeProSeite = neueAnzahl;
+        AktuelleSeite = 1;
+        await LadeDatenAsync();
+    }
+
+    private async Task SuchbegriffGeaendert(string begriff)
+    {
+        SuchBegriff = begriff;
+        await LadeDatenAsync();
+    }
+
+    private void NavigiereZuNeuFormular() =>
+        Navigation.NavigateTo("leistung/form");
+
+    private void NavigiereZuDetails(string id) =>
+        Navigation.NavigateTo($"/leistung/details/{id}");
+
+    private void NavigiereZuEditAsync(string id) =>
+        Navigation.NavigateTo($"/leistung/form/{id}");
+
+    private async Task DeleteAsync(string id)
+    {
+        await TryCatchAsync(async () =>
+        {
+            var result = await Service.DeleteLeistungAsync(id);
+            Leistungen.RemoveAll(k => k.Id == id);
+        });
+        await LadeDatenAsync();
+    }
+
+
+}
+

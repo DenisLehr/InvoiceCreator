@@ -1,0 +1,100 @@
+﻿@using System.Globalization
+@using Shared.Domain.Models
+@typeparam TItem
+
+<div class="company-card card shadow-sm">
+    <div class="header-left d-flex align-items-center gap-2">
+        @if (Firma.Name == "Ciblu-software GmbH")
+        {
+            <img class="company-logo" src="uploads/media/ciblu_logo_gross.png" alt="Logo @Firma.Name" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <div class="avatar-fallback" style="display:none">@GetInitials()</div>
+        }
+        else
+        {
+            <div class="avatar-fallback">@GetInitials()</div>
+        }
+
+        <div class="header-title-wrapper">
+            <h5 class="mb-0 header-title">@Firma.Name</h5>
+            <div class="header-sub text-white-75">@Firma.Kontaktperson</div>
+        </div>
+    </div>
+        
+
+    <div class="card-body">
+        <h6 class="section-title">Unternehmensdaten</h6>
+        <div class="row gx-2 gy-2 keyvalue-grid">
+            @RenderKeyValue("Geschäftsführer", string.Join(", ", Firma.Geschaeftsfuehrer ?? new List<string>()), "fas fa-user-tie")
+            @RenderKeyValue("Handelsregister-Nr", Firma.HandelsregisterNr, "fas fa-id-badge")
+            @RenderKeyValue("Registergericht", Firma.Registergericht, "fas fa-gavel")
+            @RenderKeyValue("Rechtsform", Firma.Rechtsform?.ToString() ?? "—", "fas fa-building")
+        </div>
+
+        <div class="separator my-3" />
+
+        <h6 class="section-title">Kontaktdaten</h6>
+        <div class="row gx-2 gy-2 keyvalue-grid">
+            @RenderKeyValue("Kontaktperson", Firma.Kontaktperson, "fas fa-person")
+            @RenderKeyValue("E-Mail", Firma.Email, "fas fa-envelope")
+            @RenderKeyValue("Telefon", Firma.Telefon, "fas fa-phone")
+            @RenderKeyValue("USt-Id", Firma.UStId, "fas fa-id-card")
+        </div>
+
+        <div class="separator my-3" />
+
+        <h6 class="section-title">Adresse</h6>
+        <div class="row gx-2 gy-2 keyvalue-grid small">
+            @RenderKeyValue("Straße", $"{Firma.Adresse.Strasse} {Firma.Adresse.Hausnummer}{(string.IsNullOrWhiteSpace(Firma.Adresse.Hausnummerzusatz) ? "" : " " + Firma.Adresse.Hausnummerzusatz)}", "fas fa-map-marker-alt")
+            @RenderKeyValue("PLZ / Ort", $"{Firma.Adresse.PLZ} {Firma.Adresse.Stadt}", "fas fa-city")
+            @RenderKeyValue("Land", Firma.Adresse.Land.ToString() ?? "—", "fas fa-globe")
+        </div>
+
+        <div class="separator my-3" />
+
+        <h6 class="section-title">Bankdaten</h6>
+        <div class="row gx-2 gy-2 keyvalue-grid small">
+            @RenderKeyValue("Bankname", Firma.Bankverbindung.Bankname, "fas fa-university")
+            @RenderKeyValue("Kontoinhaber", Firma.Bankverbindung.Kontoinhaber, "fas fa-user")
+            @RenderKeyValue("IBAN", Firma.Bankverbindung.IBAN, "fas fa-file-invoice-dollar")
+            @RenderKeyValue("BIC", Firma.Bankverbindung.BIC, "fas fa-code")
+        </div>
+
+        <div class="mt-4 d-flex gap-2 justify-content-end">
+            <button class="btn btn-outline-secondary btn-with-icon" @onclick="Zurueck"><i class="fas fa-arrow-left me-1"></i>Zurück</button>
+            <button class="btn btn-outline-primary btn-with-icon" @onclick="Bearbeiten"><i class="fas fa-edit me-1"></i>Bearbeiten</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public required Firma Firma { get; set; }
+
+    [Parameter]
+    public EventCallback ZurueckClicked { get; set; }
+
+    [Parameter]
+    public EventCallback BearbeitenClicked { get; set; }
+
+    RenderFragment RenderKeyValue(string label, string value, string iconClass) => @<div class="col-12 col-md-6">
+        <div class="kv d-flex justify-content-between align-items-center">
+            <div class="kv-left d-flex align-items-center gap-2">
+                <i class="@iconClass kv-icon" aria-hidden="true"></i>
+                <span class="kv-label">@label</span>
+            </div>
+            <div class="kv-value">@(!string.IsNullOrWhiteSpace(value) ? value : "—")</div>
+        </div>
+    </div>;
+
+    string GetInitials()
+    {
+        var name = string.IsNullOrWhiteSpace(Firma?.Name) ? "F" : Firma.Name.Trim();
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var initials = parts.Length == 1 ? parts[0].Substring(0, Math.Min(2, parts[0].Length)) : $"{parts[0][0]}{parts[^1][0]}";
+        return initials.ToUpperInvariant();
+    }
+
+    Task Zurueck() => ZurueckClicked.InvokeAsync();
+    Task Bearbeiten() => BearbeitenClicked.InvokeAsync();
+}
+

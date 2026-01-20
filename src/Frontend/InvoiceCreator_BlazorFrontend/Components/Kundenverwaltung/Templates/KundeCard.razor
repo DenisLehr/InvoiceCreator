@@ -1,0 +1,115 @@
+﻿@using System.Globalization
+@using Radzen
+@using Shared.Domain.Extensions
+@using Shared.Domain.Models
+@using Shared.Domain.ValueObjects
+@typeparam TItem
+@inherits ComponentBase
+
+
+<div class="customer-card" role="region" aria-labelledby="customer-name-@Kunde.Id">
+    <div class="card-header">
+        <div class="avatar"> @GetInitials()</div>
+        <div class="header-meta">
+            <div id="customer-name-@Kunde.Id" class="name">@Kunde.Vorname @Kunde.Nachname</div>
+            @if (Kunde.IstB2B && !string.IsNullOrWhiteSpace(Kunde.Firmenname))
+            {
+                <div class="company">@Kunde.Firmenname</div>
+            }
+        </div> 
+    </div>
+
+    <div class="card-body">
+        <div class="info-line">
+            <i class="fas fa-envelope"></i>
+            <div class="value"><a href="mailto:@Kunde.Email">@Kunde.Email</a></div>
+        </div>
+        <div class="info-line">
+            <i class="fas fa-phone"></i>
+            <div class="value"><a href="tel:@Kunde.Telefon">@Kunde.Telefon</a></div>
+        </div>
+        <div class="info-line">
+            <i class="fas fa-calendar-day"></i>
+            <div class="value">@Kunde.Geburtsdatum.ToString("d", CultureInfo.CurrentCulture) • @GetAge() Jahre</div>
+        </div>
+        <div class="info-line">
+            <i class="fas fa-venus-mars"></i>
+            <div class="value">@Kunde.Geschlecht.ToString()</div>
+        </div>
+
+        <div class="separator" />
+
+        <div class="row">
+            <div class="label">Adresse</div>
+            <div class="value">@FormatAdresse(Kunde.Adresse)</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Kundenrabatt</div>
+            <div class="value">@Kunde.KundenRabatt.ToString("P0", CultureInfo.CurrentCulture)</div>
+        </div>
+
+        <div class="row">
+            <div class="label">Nächster Termin</div>
+            @* <div class="value">@GetNextAppointment()</div> *@
+        </div>
+
+        <div class="row">
+            <div class="actions">
+                <button class="btn btn-ghost" @onclick="OnNavigiereZuUebersicht">Zurück</button>
+                <button class="btn btn-ghost" @onclick="OnNavigiereZuFormular">Bearbeiten</button>
+                <button class="btn btn-primary" @onclick="OnNeuerTermin">Termin planen</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public required Kunde Kunde { get; set; }
+
+    [Parameter]
+    public EventCallback<Kunde> NavigiereZuUebersichtClicked { get; set; }
+
+    [Parameter]
+    public EventCallback<Kunde> NavigiereZuFormularClicked { get; set; }
+
+    [Parameter]
+    public EventCallback<Kunde> NeuerTerminClicked { get; set; }
+
+    string GetInitials()
+    {
+        var first = string.IsNullOrWhiteSpace(Kunde.Vorname) ? "" : Kunde.Vorname.Trim()[0].ToString().ToUpperInvariant();
+        var last = string.IsNullOrWhiteSpace(Kunde.Nachname) ? "" : Kunde.Nachname.Trim()[0].ToString().ToUpperInvariant();
+        return (first + last).PadRight(2).Substring(0, 2);
+    }
+
+    int GetAge()
+    {
+        var today = DateTime.Today;
+        var age = today.Year - Kunde.Geburtsdatum.Year;
+        if (Kunde.Geburtsdatum.Date > today.AddYears(-age)) age--;
+        return Math.Max(0, age);
+    }
+
+    string FormatAdresse(Adresse a)
+    {
+        if (a == null) return "—";
+        var parts = new[] { $"{a.Strasse} {a.Hausnummer} {a.Hausnummerzusatz}", $"{a.PLZ} {a.Stadt}", a.Land.GetDisplayName() }.Where(s => !string.IsNullOrWhiteSpace(s));
+        return string.Join(", ", parts);
+    }
+
+    // string GetNextAppointment()
+    // {
+    //     if (Kunde.NeuerTermin.HasValue && Kunde.NeuerTermin.Value > DateTime.Now)
+    //         return Kunde.NeuerTermin.Value.ToString("g", CultureInfo.CurrentCulture);
+    //     var next = Kunde.Termine?.Where(d => d > DateTime.Now).OrderBy(d => d).FirstOrDefault();
+    //     return next.HasValue ? next.Value.ToString("g", CultureInfo.CurrentCulture) : "Keine zukünftigen Termine";
+    // }
+
+    Task OnNavigiereZuUebersicht() => NavigiereZuUebersichtClicked.InvokeAsync(Kunde);
+    Task OnNavigiereZuFormular() => NavigiereZuFormularClicked.InvokeAsync(Kunde);
+    Task OnNeuerTermin() => NeuerTerminClicked.InvokeAsync(Kunde);
+}
+
