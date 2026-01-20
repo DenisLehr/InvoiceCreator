@@ -51,6 +51,45 @@ namespace API.Controllers
             }
         }
 
+        // GET api/<FirmaController>/5
+        /// <summary>
+        /// Lädt eine Firma anhand der Id
+        /// </summary>
+        /// <param name="id">ID der Firma</param>
+        /// <returns>Kunde</returns>
+        /// <response code="200">Firma erfolgreich geladen</response>
+        /// <response code="400">Ungültige Eingabe</response>
+        /// <response code="404">Firma wurde nicht gefunden</response>
+        [HttpGet("{id}")]
+        public async Task<ActionResult<BaseResponse<FirmaDto>>> GetFirmaById(string id)
+        {
+            try
+            {
+                var firma = await _service.GetFirmaByIdAsync(id);
+
+                if (firma is null)
+                    throw new NotFoundException("Firma konnte nicht gefunden werden.");
+
+                return Ok(firma);
+            }
+            catch (NotFoundException ex)
+            {
+                _logger.LogWarning(ex, "Keine Daten gefunden.");
+                return NotFound(new { message = ex.Message });
+            }
+            catch (BadRequestException ex)
+            {
+                var errorDetails = string.Join(";", ex.Errors);
+                _logger.LogWarning(ex, "Ungültige Anfrage: {Message}", errorDetails);
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unerwarteter Fehler beim Laden der Firma.");
+                return StatusCode(500, new { message = "Ein technischer Fehler ist aufgetreten." });
+            }
+        }
+
         // POST api/<FirmaController>
         /// <summary>
         /// Erstellt eine Firma

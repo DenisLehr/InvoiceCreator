@@ -54,12 +54,8 @@ namespace InvoiceCreator_BlazorFrontend.Components.Firmendaten.Services
 
             try
             {
-                var firmaDto = await _client.GetFromJsonAsync<FirmaDto>($"firma/{id}");
-                var firma = FirmaMapper.FromFirmaDto(firmaDto);
-                //if (firma.Name.Contains("Ciblu"))
-                //{
-                //    firma.LogoUrl = MediaPaths.KleinesLogoVonFirma();
-                //}
+                var result = await _client.GetFromJsonAsync<BaseResponse<FirmaDto>>($"firma/{id}");
+                var firma = FirmaMapper.FromFirmaDto(result.Daten);
 
                 return firma ?? throw new Exception("Antwort konnte nicht gelesen werden.");
             }

@@ -8,6 +8,7 @@ namespace Services.Interfaces
         Task<BaseResponse<bool>> CreateFirma(FirmaDto dto);
         Task<BaseResponse<bool>> DeleteFirma(string id);
         Task<FirmaDto> GetFirmendatenAsync();
+        Task<BaseResponse<FirmaDto>> GetFirmaByIdAsync(string id);
         Task<BaseResponse<bool>> UpdateFirma(FirmaDto dto);
     }
 }

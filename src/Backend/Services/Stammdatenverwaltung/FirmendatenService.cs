@@ -46,6 +46,47 @@ namespace Services.Stammdatenverwaltung
             }
         }
 
+        public async Task<BaseResponse<FirmaDto>> GetFirmaByIdAsync(string id)
+        {
+            try
+            {
+                var firma = await _repository.GetByIdAsync(id);
+
+                if (firma == null)
+                {
+                    _logger.LogInformation("Keine Firma mit der ID {Id} gefunden.", id);
+                    return new BaseResponse<FirmaDto>
+                    {
+                        Erfolg = false,
+                        Hinweis = "Firma nicht vorhanden.",
+                        Daten = null,
+                        Zeitstempel = DateTime.UtcNow
+                    };
+                }
+
+                var firmaDto = _mapper.Map<FirmaDto>(firma);
+
+                return new BaseResponse<FirmaDto>
+                {
+                    Erfolg = true,
+                    Hinweis = "Firma erfolgreich geladen.",
+                    Daten = firmaDto,
+                    Zeitstempel = DateTime.UtcNow
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unerwarteter Fehler beim Laden der Firma.");
+                return new BaseResponse<FirmaDto>
+                {
+                    Erfolg = false,
+                    Hinweis = "Ein technischer Fehler ist aufgetreten.",
+                    Daten = null,
+                    Zeitstempel = DateTime.UtcNow
+                };
+            }
+        }
+
         public async Task<BaseResponse<bool>> CreateFirma(FirmaDto dto)
         {
             try
