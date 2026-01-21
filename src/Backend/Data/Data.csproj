@@ -7,6 +7,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Persistence\Seeding\SeedData\firmen_seed.json" />
+    <None Remove="Persistence\Seeding\SeedData\kunden_seed.json" />
+    <None Remove="Persistence\Seeding\SeedData\leistungen_seed.json" />
+    <None Remove="Persistence\Seeding\SeedData\users_seed.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Persistence\Seeding\SeedData\firmen_seed.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Persistence\Seeding\SeedData\kunden_seed.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Persistence\Seeding\SeedData\leistungen_seed.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Persistence\Seeding\SeedData\users_seed.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="15.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.0" />
