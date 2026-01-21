@@ -6,6 +6,15 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.Development.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
+var connStr = builder.Configuration.GetValue<string>("MongoDB:ConnectionString");
+Console.WriteLine($"Mongo Connection String: {connStr}");
+
 // Add services to the container.
 builder.Services.ConfigureServices(builder.Configuration);
 builder.Services.ConfigurePersistence(builder.Configuration);

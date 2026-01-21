@@ -36,25 +36,29 @@ namespace Data.Persistence.Seeding
 
         private IEnumerable<KundeDocument> GetKundenSeedData()
         {
-            var json = File.ReadAllText("Data/Persistence/Seeding/SeedData/kunden_seed.json");
+            var path = Path.Combine(AppContext.BaseDirectory, "Persistence", "Seeding", "SeedData", "kunden_seed.json");
+            var json = File.ReadAllText(path);
             return System.Text.Json.JsonSerializer.Deserialize<IEnumerable<KundeDocument>>(json)!;
         }
 
         private IEnumerable<FirmaDocument> GetFirmenSeedData()
         {
-            var json = File.ReadAllText("Data/Persistence/Seeding/SeedData/firmen_seed.json");
+            var path = Path.Combine(AppContext.BaseDirectory, "Persistence", "Seeding", "SeedData", "firmen_seed.json");
+            var json = File.ReadAllText(path);
             return System.Text.Json.JsonSerializer.Deserialize<IEnumerable<FirmaDocument>>(json)!;
         }
 
         private IEnumerable<LeistungDocument> GetLeistungenSeedData()
         {
-            var json = File.ReadAllText("Data/Persistence/Seeding/SeedData/leistungen_seed.json");
+            var path = Path.Combine(AppContext.BaseDirectory, "Persistence", "Seeding", "SeedData", "leistungen_seed.json");
+            var json = File.ReadAllText(path);
             return System.Text.Json.JsonSerializer.Deserialize<IEnumerable<LeistungDocument>>(json)!;
         }
 
         private IEnumerable<UserDocument> GetUserSeedData()
         {
-            var json = File.ReadAllText("Data/Persistence/Seeding/SeedData/users_seed.json");
+            var path = Path.Combine(AppContext.BaseDirectory, "Persistence", "Seeding", "SeedData", "users_seed.json");
+            var json = File.ReadAllText(path);
             return System.Text.Json.JsonSerializer.Deserialize<IEnumerable<UserDocument>>(json)!;
         }
     }
