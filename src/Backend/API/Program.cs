@@ -1,5 +1,6 @@
 using API.Extension;
 using Data;
+using Data.Persistence.Seeding;
 using Services;
 using System.Text.Json.Serialization;
 
@@ -30,6 +31,18 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.SwaggerConfig(builder.Configuration, "SwaggerConfigTest");
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+    var enabled = config.GetValue<bool>("DatabaseSeeding:Enabled");
+
+    if (enabled)
+    {
+        var seeder = scope.ServiceProvider.GetRequiredService<IDatabaseSeeder>();
+        await seeder.SeedAsync();
+    }
 }
 
 app.UseHttpsRedirection();

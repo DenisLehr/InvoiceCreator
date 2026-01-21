@@ -1,0 +1,31 @@
+[
+  {
+    "id": "68fbc6a1a54472b463bf7bc6",
+    "name": "Muster IT GmbH",
+    "kontaktperson": "Max Muster",
+    "geschaeftsfuehrer": [
+      "Max Muster"
+    ],
+    "adresse": {
+      "strasse": "Musterallee",
+      "hausnummer": "72",
+      "hausnummerzusatz": null,
+      "stadt": "Musterstadt",
+      "plz": "12345",
+      "land": "Deutschland"
+    },
+    "email": "info@muster-it.de",
+    "telefon": "+49 1234 567 890",
+    "uStId": "DE987654321",
+    "bankverbindung": {
+      "kontoinhaber": "Max Muster",
+      "iban": "DE84673932312347",
+      "bic": "MUSTDEFFXXX",
+      "bankname": "Sparkasse"
+    },
+    "logo": "",
+    "handelsregisterNr": "HRB 12345",
+    "registergericht": "Amtsgericht Musterstadt",
+    "rechtsform": "GmbH"
+  }
+]

@@ -1,0 +1,289 @@
+[
+  {
+    "id": "691ccc0639727ec7c8787e54",
+    "vorname": "Max",
+    "nachname": "Mustermann",
+    "firmenname": "Musterfirma GmbH",
+    "email": "max.mustermann@example.com",
+    "telefon": "+49 234 123456",
+    "telefonMobil": "+49 171 987654",
+    "geburtsdatum": "1985-05-12T00:00:00Z",
+    "geschlecht": "maennlich",
+    "adresse": {
+      "strasse": "Musterstraße",
+      "hausnummer": "12",
+      "hausnummerzusatz": "",
+      "stadt": "Bochum",
+      "plz": "44787",
+      "land": "Deutschland"
+    },
+    "naechsterTermin": null,
+    "termine": [
+      {
+        "id": null,
+        "start": "2026-01-05T12:00:00Z",
+        "end": "2026-01-05T13:00:00Z",
+        "text": "Max Mustermann",
+        "kundeId": "691ccc0639727ec7c8787e54",
+        "userId": "68ebcd66f90af365a1cdc432",
+        "leistungen": [
+          "PC-/Notebook-Wartung (remote)"
+        ],
+        "geschätzteDauer": "01:00:00",
+        "status": "Geplant",
+        "bestätigtAm": null
+      },
+      {
+        "id": null,
+        "start": "2025-10-10T09:00:00Z",
+        "end": "2025-10-10T10:45:00Z",
+        "text": "Max Mustermann",
+        "kundeId": "691ccc0639727ec7c8787e54",
+        "userId": "68ebcd66f90af365a1cdc432",
+        "leistungen": [
+          "E-Mail-Einrichtung (IMAP/POP/Exchange)",
+          "Drucker/Scanner einrichten (1 Gerät)"
+        ],
+        "geschätzteDauer": "01:45:00",
+        "status": "Geplant",
+        "bestätigtAm": null
+      },
+      {
+        "id": null,
+        "start": "2025-10-28T10:00:00Z",
+        "end": "2025-10-28T12:30:00Z",
+        "text": "Max Mustermann",
+        "kundeId": "691ccc0639727ec7c8787e54",
+        "userId": "68ebcd66f90af365a1cdc432",
+        "leistungen": [
+          "Datenumzug Alt → Neu (bis 250 GB)",
+          "Microsoft 365/Office-Einrichtung (1 Nutzer)"
+        ],
+        "geschätzteDauer": "02:30:00",
+        "status": "Geplant",
+        "bestätigtAm": null
+      },
+      {
+        "id": null,
+        "start": "2025-10-28T09:00:00Z",
+        "end": "2025-10-28T12:45:00Z",
+        "text": "Max Mustermann",
+        "kundeId": "691ccc0639727ec7c8787e54",
+        "userId": "68ebcd66f90af365a1cdc432",
+        "leistungen": [
+          "PC-/Notebook-Wartung (vor Ort)",
+          "Windows-Neuinstallation + Ersteinrichtung"
+        ],
+        "geschätzteDauer": "03:45:00",
+        "status": "Geplant",
+        "bestätigtAm": null
+      },
+      {
+        "id": null,
+        "start": "2025-10-28T09:00:00Z",
+        "end": "2025-10-28T11:30:00Z",
+        "text": "Max Mustermann",
+        "kundeId": "691ccc0639727ec7c8787e54",
+        "userId": "68ebcd66f90af365a1cdc432",
+        "leistungen": [
+          "Datenumzug Alt → Neu (bis 250 GB)",
+          "Microsoft 365/Office-Einrichtung (1 Nutzer)"
+        ],
+        "geschätzteDauer": "02:30:00",
+        "status": "Geplant",
+        "bestätigtAm": null
+      },
+      {
+        "id": null,
+        "start": "2025-10-28T09:00:00Z",
+        "end": "2025-10-28T11:30:00Z",
+        "text": "Max Mustermann",
+        "kundeId": "691ccc0639727ec7c8787e54",
+        "userId": "68ebcd66f90af365a1cdc432",
+        "leistungen": [
+          "Datenumzug Alt → Neu (bis 250 GB)",
+          "Microsoft 365/Office-Einrichtung (1 Nutzer)"
+        ],
+        "geschätzteDauer": "02:30:00",
+        "status": "Geplant",
+        "bestätigtAm": null
+      },
+      {
+        "id": null,
+        "start": "2025-10-28T09:00:00Z",
+        "end": "2025-10-28T11:30:00Z",
+        "text": "Max Mustermann",
+        "kundeId": "691ccc0639727ec7c8787e54",
+        "userId": "68ebcd66f90af365a1cdc432",
+        "leistungen": [
+          "Datenumzug Alt → Neu (bis 250 GB)",
+          "Microsoft 365/Office-Einrichtung (1 Nutzer)"
+        ],
+        "geschätzteDauer": "02:30:00",
+        "status": "Geplant",
+        "bestätigtAm": null
+      },
+      {
+        "id": null,
+        "start": "2025-10-28T09:00:00Z",
+        "end": "2025-10-28T11:30:00Z",
+        "text": "Max Mustermann",
+        "kundeId": "691ccc0639727ec7c8787e54",
+        "userId": "68ebcd66f90af365a1cdc432",
+        "leistungen": [
+          "Datenumzug Alt → Neu (bis 250 GB)",
+          "Microsoft 365/Office-Einrichtung (1 Nutzer)"
+        ],
+        "geschätzteDauer": "02:30:00",
+        "status": "Geplant",
+        "bestätigtAm": null
+      }
+    ],
+    "kundenRabatt": 0,
+    "geaendertAm": "2026-01-04T18:28:05.73Z",
+    "istB2B": true
+  },
+  {
+    "id": "691ccce139727ec7c8787e55",
+    "vorname": "Anna",
+    "nachname": "Schneider",
+    "firmenname": "",
+    "email": "anna.schneider@example.com",
+    "telefon": "+49 30 123456",
+    "telefonMobil": "+49 171 111111",
+    "geburtsdatum": "1990-03-15T00:00:00Z",
+    "geschlecht": "weiblich",
+    "adresse": {
+      "strasse": "Berliner Allee",
+      "hausnummer": "45",
+      "hausnummerzusatz": "A",
+      "stadt": "Berlin",
+      "plz": "10115",
+      "land": "Deutschland"
+    },
+    "naechsterTermin": null,
+    "termine": [
+      {
+        "id": null,
+        "start": "2025-10-22T22:00:00Z",
+        "end": "2025-10-23T02:00:00Z",
+        "text": "Anna Schneider",
+        "kundeId": "691ccce139727ec7c8787e55",
+        "userId": "68ebcd66f90af365a1cdc432",
+        "leistungen": [
+          "Windows-Neuinstallation + Ersteinrichtung",
+          "Datenumzug Alt → Neu (bis 250 GB)"
+        ],
+        "geschätzteDauer": "04:00:00",
+        "status": "Geplant",
+        "bestätigtAm": null
+      },
+      {
+        "id": null,
+        "start": "2025-10-28T09:00:00Z",
+        "end": "2025-10-28T13:00:00Z",
+        "text": "Anna Schneider",
+        "kundeId": "691ccce139727ec7c8787e55",
+        "userId": "68ebcd66f90af365a1cdc432",
+        "leistungen": [
+          "Windows-Neuinstallation + Ersteinrichtung",
+          "Datenumzug Alt → Neu (bis 250 GB)"
+        ],
+        "geschätzteDauer": "04:00:00",
+        "status": "Geplant",
+        "bestätigtAm": null
+      }
+    ],
+    "kundenRabatt": 5,
+    "geaendertAm": "2026-01-04T16:54:58.774Z",
+    "istB2B": false
+  },
+  {
+    "id": "691cccff39727ec7c8787e56",
+    "vorname": "Thomas",
+    "nachname": "Meier",
+    "firmenname": "Meier IT Solutions",
+    "email": "thomas.meier@meier-it.de",
+    "telefon": "+49 221 987654",
+    "telefonMobil": "+49 172 222222",
+    "geburtsdatum": "1982-07-22T00:00:00Z",
+    "geschlecht": "maennlich",
+    "adresse": {
+      "strasse": "Kölnstraße",
+      "hausnummer": "199",
+      "hausnummerzusatz": "",
+      "stadt": "Köln",
+      "plz": "50667",
+      "land": "Deutschland"
+    },
+    "naechsterTermin": null,
+    "termine": [
+      {
+        "id": null,
+        "start": "2026-01-14T11:00:00Z",
+        "end": "2026-01-14T13:15:00Z",
+        "text": "Thomas Meier",
+        "kundeId": "691cccff39727ec7c8787e56",
+        "userId": "68ebcd66f90af365a1cdc432",
+        "leistungen": [
+          "E-Mail-Einrichtung (IMAP/POP/Exchange)",
+          "Backup-Konzept + Einrichtung"
+        ],
+        "geschätzteDauer": "02:15:00",
+        "status": "Geplant",
+        "bestätigtAm": null
+      }
+    ],
+    "kundenRabatt": 10,
+    "geaendertAm": "2026-01-04T17:26:01.986Z",
+    "istB2B": true
+  },
+  {
+    "id": "691ccd3939727ec7c8787e57",
+    "vorname": "Sam",
+    "nachname": "Keller",
+    "firmenname": "",
+    "email": "sam.keller@example.com",
+    "telefon": "+49 40 555555",
+    "telefonMobil": "+49 173 333333",
+    "geburtsdatum": "1995-12-01T00:00:00Z",
+    "geschlecht": "divers",
+    "adresse": {
+      "strasse": "Hafenstraße",
+      "hausnummer": "12",
+      "hausnummerzusatz": "B",
+      "stadt": "Hamburg",
+      "plz": "20095",
+      "land": "Deutschland"
+    },
+    "naechsterTermin": null,
+    "termine": [],
+    "kundenRabatt": 0,
+    "geaendertAm": "2025-11-18T19:39:12.519Z",
+    "istB2B": false
+  },
+  {
+    "id": "6928b22c242f7dfc20fb0388",
+    "vorname": "Robert",
+    "nachname": "Martin",
+    "firmenname": "Clean Code GmbH",
+    "email": "info@cleancode.com",
+    "telefon": "+423869405874",
+    "telefonMobil": null,
+    "geburtsdatum": "1943-11-26T23:00:00Z",
+    "geschlecht": "maennlich",
+    "adresse": {
+      "strasse": "Softwarestraße",
+      "hausnummer": "42",
+      "hausnummerzusatz": null,
+      "stadt": "Bochum",
+      "plz": "44787",
+      "land": "Deutschland"
+    },
+    "naechsterTermin": null,
+    "termine": [],
+    "kundenRabatt": 0,
+    "geaendertAm": "0001-01-01T00:00:00Z",
+    "istB2B": true
+  }
+]

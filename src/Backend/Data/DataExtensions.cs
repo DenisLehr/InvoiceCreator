@@ -1,6 +1,7 @@
 ﻿using Data.Configuration.MongoDB;
 using Data.Configuration.SMTP;
 using Data.Interfaces;
+using Data.Persistence.Seeding;
 using Data.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +32,7 @@ namespace Data
             services.AddScoped<IRechnungRepository, RechnungRepository>();
             services.AddScoped<ITerminRepository, TerminRepository>();
 
+            services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();
         }
     }
 }
